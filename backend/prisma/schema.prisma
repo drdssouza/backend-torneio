@@ -1,0 +1,84 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  password String
+}
+
+model Tournament {
+  id          Int      @id @default(autoincrement())
+  name        String
+  date        DateTime @default(now())
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  clubs       Club[]
+  teams       Team[]
+  groups      Group[]
+  matches     Match[]
+}
+
+model Club {
+  id           Int         @id @default(autoincrement())
+  name         String
+  tournamentId Int
+  tournament   Tournament  @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  teams        Team[]
+}
+
+model Team {
+  id           Int         @id @default(autoincrement())
+  player1      String
+  player2      String
+  clubId       Int
+  category     String
+  gender       String      @default("MASCULINO")
+  tournamentId Int
+  tournament   Tournament  @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  club         Club        @relation(fields: [clubId], references: [id])
+  groupId      Int?
+  group        Group?      @relation(fields: [groupId], references: [id])
+  matchesAs1   Match[]     @relation("team1")
+  matchesAs2   Match[]     @relation("team2")
+  wins         Int         @default(0)
+  gamesWon     Int         @default(0)
+  gamesLost    Int         @default(0)
+  points       Int         @default(0)
+  placement    String?
+}
+
+model Group {
+  id           Int        @id @default(autoincrement())
+  name         String
+  category     String
+  gender       String     @default("MASCULINO")
+  tournamentId Int
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  teams        Team[]
+  matches      Match[]
+}
+
+model Match {
+  id           Int        @id @default(autoincrement())
+  groupId      Int?
+  group        Group?     @relation(fields: [groupId], references: [id])
+  team1Id      Int
+  team2Id      Int
+  team1        Team       @relation("team1", fields: [team1Id], references: [id])
+  team2        Team       @relation("team2", fields: [team2Id], references: [id])
+  score1       Int?
+  score2       Int?
+  status       String     @default("pendente")
+  phase        String     @default("grupos")
+  category     String
+  gender       String     @default("MASCULINO")
+  tournamentId Int
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+}
