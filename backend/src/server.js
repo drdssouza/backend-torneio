@@ -8,20 +8,14 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// CORS configurado para produção
-const corsOptions = {
-  origin: process.env.FRONTEND_URL || '*',
-  credentials: true
-};
-
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json());
 
 app.use('/api', routes);
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
+// Health check
+app.get('/', (req, res) => {
+  res.json({ status: 'Backend rodando!' });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
