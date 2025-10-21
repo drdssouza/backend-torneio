@@ -8,23 +8,26 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-// CORS configurado para aceitar o frontend
-const corsOptions = {
-  origin: process.env.FRONTEND_URL || '*',
+// CORS - permitir TUDO em produção (vamos restringir depois)
+app.use(cors({
+  origin: '*',
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-};
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
 
-app.use(cors(corsOptions));
+// Middleware para JSON
 app.use(express.json());
 
+// Rotas
 app.use('/api', routes);
 
+// Health check
 app.get('/', (req, res) => {
   res.json({ status: 'Backend rodando!' });
 });
 
+// Iniciar servidor
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
