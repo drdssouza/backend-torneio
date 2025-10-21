@@ -1,23 +1,25 @@
 {
-    "name": "torneio-backend",
-    "version": "1.0.0",
-    "type": "module",
-    "scripts": {
-      "start": "node src/server.js",
-      "dev": "node src/server.js",
-      "db:migrate": "npx prisma migrate deploy",
-      "db:seed": "npx prisma db seed",
-      "postinstall": "npx prisma generate"
-    },
-    "prisma": {
-      "seed": "node prisma/seed.js"
-    },
-    "dependencies": {
-      "@prisma/client": "^5.0.0",
-      "bcrypt": "^6.0.0",
-      "cors": "^2.8.5",
-      "dotenv": "^16.3.1",
-      "express": "^4.18.2",
-      "prisma": "^5.0.0"
-    }
+  "name": "torneio-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "postdeploy": "npx prisma db seed",
+    "dev": "node src/server.js",
+    "db:migrate": "npx prisma migrate dev",
+    "db:seed": "npx prisma db seed"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.0.0",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "prisma": "^5.0.0"
   }
+}
