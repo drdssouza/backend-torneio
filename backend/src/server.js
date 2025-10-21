@@ -2,13 +2,14 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import routes from './routes/index.js';
+import { PrismaClient } from '@prisma/client';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+const prisma = new PrismaClient();
 
-// CORS - permitir TUDO em produção (vamos restringir depois)
 app.use(cors({
   origin: '*',
   credentials: true,
@@ -16,18 +17,37 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-// Middleware para JSON
 app.use(express.json());
 
-// Rotas
 app.use('/api', routes);
 
-// Health check
 app.get('/', (req, res) => {
   res.json({ status: 'Backend rodando!' });
 });
 
-// Iniciar servidor
+// ROTA DE DEBUG - TEMPORÁRIA
+app.get('/debug/usuarios', async (req, res) => {
+  try {
+    const usuarios = await prisma.usuario.findMany({
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        tipo: true
+      }
+    });
+    res.json({ 
+      total: usuarios.length,
+      usuarios 
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      error: error.message,
+      connected: false 
+    });
+  }
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
