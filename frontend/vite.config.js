@@ -8,7 +8,7 @@ export default defineConfig({
     host: true
   },
   preview: {
-    port: process.env.PORT || 8080,
+    port: process.env.PORT || 4173,
     host: '0.0.0.0',
     strictPort: false
   }
