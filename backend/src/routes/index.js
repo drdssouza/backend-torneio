@@ -7,7 +7,7 @@ import * as groupController from '../controllers/groupController.js';
 import * as matchController from '../controllers/matchController.js';
 import * as eliminationController from '../controllers/eliminationController.js';
 import * as rankingController from '../controllers/rankingController.js';
-import seedRouter from './seed.js'; // ADICIONE ESTA LINHA
+
 
 const router = express.Router();
 
@@ -16,8 +16,6 @@ const router = express.Router();
 // Auth
 router.post('/login', authController.login);
 
-// Seed (TEMPORÁRIO - remover depois)
-router.use('/seed', seedRouter); // ADICIONE ESTA LINHA
 
 // Tournaments
 router.get('/tournaments', tournamentController.getAllTournaments);
