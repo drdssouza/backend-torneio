@@ -1,36 +1,121 @@
-import { LogOut, LogIn, Award } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { LogOut, LogIn, Award, Calendar, Settings } from 'lucide-react';
 import { useStore } from '../store/useStore';
+import { api } from '../utils/api';
 
-export default function Home({ onSelectCategory, onManageTeams, onShowLogin, onShowRanking }) {
-  const { isAuthenticated, username, logout } = useStore();
+export default function Home({ onSelectCategory, onManageTeams, onShowLogin, onShowRanking, onManageTournaments }) {
+  const { isAuthenticated, logout } = useStore();
+  const [activeTournament, setActiveTournament] = useState(null);
+  const [allTournaments, setAllTournaments] = useState([]);
+  const [showTournamentSelector, setShowTournamentSelector] = useState(false);
+  
   const categories = ['E', 'D', 'C'];
   const genders = ['MASCULINO', 'FEMININO'];
 
+  useEffect(() => {
+    loadTournaments();
+  }, []);
+
+  const loadTournaments = async () => {
+    const [active, all] = await Promise.all([
+      api.getActiveTournament(),
+      api.getAllTournaments()
+    ]);
+    setActiveTournament(active);
+    setAllTournaments(all);
+  };
+
+  const handleSelectTournament = async (tournamentId) => {
+    await api.setActiveTournament(tournamentId);
+    await loadTournaments();
+    setShowTournamentSelector(false);
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR', { 
+      day: '2-digit', 
+      month: 'long', 
+      year: 'numeric' 
+    });
+  };
+
   return (
     <div className="min-h-screen bg-white">
-      {/* Header simples */}
+      {/* Header */}
       <header className="border-b border-gray-200">
-        <div className="max-w-5xl mx-auto px-6 py-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Torneio Interclubes</h1>
-            <p className="text-sm text-gray-500 mt-1">Beach Tennis • 2025</p>
+        <div className="max-w-5xl mx-auto px-6 py-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Torneio Interclubes</h1>
+              <p className="text-sm text-gray-500 mt-1">Beach Tennis • 2025</p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {isAuthenticated && (
+                <button
+                  onClick={onManageTournaments}
+                  className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2"
+                >
+                  <Settings className="w-4 h-4" /> Gerenciar Edições
+                </button>
+              )}
+              
+              {isAuthenticated ? (
+                <button
+                  onClick={logout}
+                  className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2"
+                >
+                  <LogOut className="w-4 h-4" /> Sair
+                </button>
+              ) : (
+                <button
+                  onClick={onShowLogin}
+                  className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2"
+                >
+                  <LogIn className="w-4 h-4" /> Admin
+                </button>
+              )}
+            </div>
           </div>
 
-          {isAuthenticated ? (
-            <button
-              onClick={logout}
-              className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2"
-            >
-              <LogOut className="w-4 h-4" /> Sair
-            </button>
-          ) : (
-            <button
-              onClick={onShowLogin}
-              className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2"
-            >
-              <LogIn className="w-4 h-4" /> Admin
-            </button>
+          {/* Seletor de Edição */}
+          {activeTournament && (
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-5 h-5 text-gray-400" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{activeTournament.name}</p>
+                    <p className="text-xs text-gray-500">{formatDate(activeTournament.date)}</p>
+                  </div>
+                </div>
+
+                {allTournaments.length > 1 && (
+                  <button
+                    onClick={() => setShowTournamentSelector(!showTournamentSelector)}
+                    className="text-xs text-gray-600 hover:text-gray-900 underline"
+                  >
+                    Trocar edição
+                  </button>
+                )}
+              </div>
+
+              {showTournamentSelector && (
+                <div className="mt-4 pt-4 border-t border-gray-200 space-y-2">
+                  {allTournaments.filter(t => t.id !== activeTournament.id).map((tournament) => (
+                    <button
+                      key={tournament.id}
+                      onClick={() => handleSelectTournament(tournament.id)}
+                      className="w-full text-left px-3 py-2 rounded hover:bg-gray-100 transition"
+                    >
+                      <p className="text-sm font-medium text-gray-900">{tournament.name}</p>
+                      <p className="text-xs text-gray-500">{formatDate(tournament.date)}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
         </div>
       </header>

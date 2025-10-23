@@ -10,10 +10,51 @@ export const api = {
     return res.json();
   },
 
+  // ===== TORNEIOS =====
+  getActiveTournament: async () => {
+    const res = await fetch(`${API_URL}/tournaments/active`);
+    return res.json();
+  },
+
+  getAllTournaments: async () => {
+    const res = await fetch(`${API_URL}/tournaments`);
+    return res.json();
+  },
+
+  createTournament: async (name, date) => {
+    const res = await fetch(`${API_URL}/tournaments`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, date })
+    });
+    return res.json();
+  },
+
+  setActiveTournament: async (tournamentId) => {
+    const res = await fetch(`${API_URL}/tournaments/${tournamentId}/activate`, {
+      method: 'PATCH'
+    });
+    return res.json();
+  },
+
+  deleteTournament: async (tournamentId) => {
+    const res = await fetch(`${API_URL}/tournaments/${tournamentId}`, {
+      method: 'DELETE'
+    });
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error);
+    }
+    return res.json();
+  },
+
+  // ===== CLUBES =====
   getClubs: async () => {
     const res = await fetch(`${API_URL}/clubs`);
     return res.json();
   },
+
+  // ===== RANKING =====
   calculateRanking: async () => {
     const res = await fetch(`${API_URL}/ranking/calculate`, {
       method: 'POST'
@@ -31,6 +72,7 @@ export const api = {
     return res.json();
   },
 
+  // ===== DUPLAS =====
   createTeam: async (player1, player2, clubId, category, gender) => {
     const res = await fetch(`${API_URL}/teams`, {
       method: 'POST',
@@ -52,6 +94,7 @@ export const api = {
     return res.json();
   },
 
+  // ===== GRUPOS =====
   generateGroups: async (category, gender) => {
     const res = await fetch(`${API_URL}/groups/generate`, {
       method: 'POST',
@@ -66,13 +109,14 @@ export const api = {
     return res.json();
   },
 
+  // ===== PARTIDAS =====
   getMatches: async (category, gender) => {
     const res = await fetch(`${API_URL}/matches/${category}/${gender}`);
     return res.json();
   },
-  
-  updateMatch: async (id, score1, score2) => {
-    const res = await fetch(`${API_URL}/matches/${id}`, {
+
+  updateMatch: async (matchId, score1, score2) => {
+    const res = await fetch(`${API_URL}/matches/${matchId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ score1, score2 })
@@ -80,6 +124,7 @@ export const api = {
     return res.json();
   },
 
+  // ===== ELIMINATÓRIAS =====
   generateElimination: async (category, gender) => {
     const res = await fetch(`${API_URL}/elimination/generate`, {
       method: 'POST',
@@ -94,8 +139,8 @@ export const api = {
     return res.json();
   },
 
-  advanceWinner: async (id, score1, score2) => {
-    const res = await fetch(`${API_URL}/elimination/${id}`, {
+  advanceWinner: async (matchId, score1, score2) => {
+    const res = await fetch(`${API_URL}/elimination/${matchId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ score1, score2 })

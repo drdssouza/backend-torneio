@@ -2,17 +2,32 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const generateGroups = async (category, gender, tournamentId) => {
-  await prisma.match.deleteMany({ where: { category, gender, tournamentId, phase: 'grupos' } });
-  await prisma.team.updateMany({ where: { category, gender, tournamentId }, data: { groupId: null, wins: 0, gamesWon: 0, gamesLost: 0 } });
+  // Limpar grupos e matches anteriores
+  await prisma.match.deleteMany({ 
+    where: { 
+      category, 
+      gender, 
+      tournamentId,
+      phase: 'grupos' 
+    } 
+  });
+
+  await prisma.team.updateMany({
+    where: { category, gender, tournamentId },
+    data: { groupId: null, wins: 0, losses: 0, gamesWon: 0, gamesLost: 0 }
+  });
+
   await prisma.group.deleteMany({ where: { category, gender, tournamentId } });
 
+  // Buscar duplas
   const teams = await prisma.team.findMany({
     where: { category, gender, tournamentId },
     include: { club: true }
   });
 
   if (teams.length !== 16) {
-    throw new Error(`É necessário ter exatamente 16 duplas cadastradas. Atualmente há ${teams.length} duplas.`);
+    throw new Error(`É necessário ter exatamente 16 duplas cadastradas. 
+Atualmente há ${teams.length} duplas.`);
   }
 
   const teamsByClub = {};
@@ -40,7 +55,10 @@ export const generateGroups = async (category, gender, tournamentId) => {
       const availableTeams = teamsByClub[clubId].filter(t => !t.groupId);
       
       if (availableTeams.length > 0) {
-        const team = availableTeams[0];
+        // Escolher uma dupla ALEATÓRIA em vez de sempre a primeira
+        const randomIndex = Math.floor(Math.random() * availableTeams.length);
+        const team = availableTeams[randomIndex];
+        
         await prisma.team.update({
           where: { id: team.id },
           data: { groupId: groups[groupIndex].id }

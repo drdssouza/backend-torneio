@@ -20,8 +20,8 @@ export const getAllTournaments = async (req, res) => {
 
 export const createTournament = async (req, res) => {
   try {
-    const { name } = req.body;
-    const tournament = await tournamentService.createTournament(name);
+    const { name, date } = req.body;
+    const tournament = await tournamentService.createTournament(name, date);
     res.json(tournament);
   } catch (error) {
     res.status(500).json({ error: error.message });
