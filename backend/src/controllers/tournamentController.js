@@ -21,9 +21,15 @@ export const getAllTournaments = async (req, res) => {
 export const createTournament = async (req, res) => {
   try {
     const { name, date } = req.body;
+    
+    if (!name) {
+      return res.status(400).json({ error: 'Nome do torneio é obrigatório' });
+    }
+    
     const tournament = await tournamentService.createTournament(name, date);
     res.json(tournament);
   } catch (error) {
+    console.error('Erro ao criar torneio:', error);
     res.status(500).json({ error: error.message });
   }
 };

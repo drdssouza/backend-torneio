@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Shuffle } from 'lucide-react';
 import { api } from '../utils/api';
 
 export default function ManageTeams({ category, gender, onBack }) {
   const [teams, setTeams] = useState([]);
   const [clubs, setClubs] = useState([]);
+  const [groups, setGroups] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [formData, setFormData] = useState({
     player1: '',
     player2: '',
@@ -17,12 +19,14 @@ export default function ManageTeams({ category, gender, onBack }) {
   }, [category, gender]);
 
   const loadData = async () => {
-    const [teamsData, clubsData] = await Promise.all([
+    const [teamsData, clubsData, groupsData] = await Promise.all([
       api.getTeams(category, gender),
-      api.getClubs()
+      api.getClubs(),
+      api.getGroups(category, gender)
     ]);
     setTeams(teamsData);
     setClubs(clubsData);
+    setGroups(groupsData);
   };
 
   const handleSubmit = async (e) => {
@@ -44,9 +48,36 @@ export default function ManageTeams({ category, gender, onBack }) {
   };
 
   const handleDelete = async (id) => {
+    if (groups.length > 0) {
+      alert('Não é possível excluir duplas após os grupos terem sido gerados!');
+      return;
+    }
+    
     if (confirm('Excluir esta dupla?')) {
       await api.deleteTeam(id);
       loadData();
+    }
+  };
+
+  const handleGenerateGroups = async () => {
+    if (groups.length > 0) {
+      alert('Os grupos já foram gerados para esta categoria!');
+      return;
+    }
+
+    if (!confirm('Deseja gerar os grupos? Esta ação não pode ser desfeita!')) {
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      await api.generateGroups(category, gender);
+      await loadData();
+      alert('Grupos gerados com sucesso! ✓');
+    } catch (error) {
+      alert('Erro ao gerar grupos: ' + (error.message || 'Erro desconhecido'));
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -55,6 +86,8 @@ export default function ManageTeams({ category, gender, onBack }) {
     acc[team.club.name].push(team);
     return acc;
   }, {});
+
+  const groupsGenerated = groups.length > 0;
 
   return (
     <div className="min-h-screen bg-white">
@@ -75,18 +108,20 @@ export default function ManageTeams({ category, gender, onBack }) {
               </p>
             </div>
 
-            <button
-              onClick={() => setShowForm(!showForm)}
-              className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded text-sm hover:bg-gray-800 transition"
-            >
-              <Plus className="w-4 h-4" /> Nova Dupla
-            </button>
+            {!groupsGenerated && (
+              <button
+                onClick={() => setShowForm(!showForm)}
+                className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded text-sm hover:bg-gray-800 transition"
+              >
+                <Plus className="w-4 h-4" /> Nova Dupla
+              </button>
+            )}
           </div>
         </div>
       </header>
 
       <div className="max-w-5xl mx-auto px-6 py-12">
-        {showForm && (
+        {showForm && !groupsGenerated && (
           <div className="border border-gray-200 rounded-lg p-6 mb-8">
             <h3 className="font-semibold text-gray-900 mb-4">Adicionar Dupla</h3>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -127,10 +162,17 @@ export default function ManageTeams({ category, gender, onBack }) {
           </div>
         )}
 
-        <div className="mb-4">
+        <div className="mb-6 flex items-center justify-between">
           <p className="text-sm text-gray-500">
             {teams.length}/16 duplas cadastradas
           </p>
+
+          {groupsGenerated && (
+            <div className="flex items-center gap-2 text-green-600 text-sm">
+              <span className="w-2 h-2 bg-green-600 rounded-full"></span>
+              Grupos já foram gerados
+            </div>
+          )}
         </div>
 
         {teams.length === 0 ? (
@@ -153,12 +195,14 @@ export default function ManageTeams({ category, gender, onBack }) {
                       <p className="text-sm text-gray-900">
                         {team.player1} / {team.player2}
                       </p>
-                      <button
-                        onClick={() => handleDelete(team.id)}
-                        className="text-gray-400 hover:text-red-600 transition"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      {!groupsGenerated && (
+                        <button
+                          onClick={() => handleDelete(team.id)}
+                          className="text-gray-400 hover:text-red-600 transition"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -167,10 +211,53 @@ export default function ManageTeams({ category, gender, onBack }) {
           </div>
         )}
 
-        {teams.length === 16 && (
-          <div className="mt-8 border border-green-200 bg-green-50 rounded-lg p-4 text-center">
-            <p className="text-sm text-green-800">
-              ✓ Todas as 16 duplas cadastradas! Você pode gerar os grupos.
+        {/* Botão de Gerar Grupos */}
+        {teams.length === 16 && !groupsGenerated && (
+          <div className="mt-12 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-8 text-center">
+            <div className="mb-4">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-full mb-4">
+                <Shuffle className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">
+                Pronto para Gerar os Grupos!
+              </h3>
+              <p className="text-sm text-gray-600 mb-6">
+                Todas as 16 duplas foram cadastradas. O sorteio será aleatório<br />
+                respeitando a regra de 1 dupla por arena em cada grupo.
+              </p>
+            </div>
+            
+            <button
+              onClick={handleGenerateGroups}
+              disabled={isGenerating}
+              className="inline-flex items-center gap-3 bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-blue-700 transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg"
+            >
+              {isGenerating ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  Gerando...
+                </>
+              ) : (
+                <>
+                  <Shuffle className="w-5 h-5" />
+                  Gerar Grupos Agora
+                </>
+              )}
+            </button>
+            
+            <p className="text-xs text-gray-500 mt-4">
+              ⚠️ Atenção: Esta ação não pode ser desfeita!
+            </p>
+          </div>
+        )}
+
+        {groupsGenerated && (
+          <div className="mt-8 bg-green-50 border border-green-200 rounded-lg p-6 text-center">
+            <p className="text-green-800 font-medium mb-2">
+              ✓ Grupos gerados com sucesso!
+            </p>
+            <p className="text-sm text-green-700">
+              Veja os grupos e resultados na página "Ver Torneio"
             </p>
           </div>
         )}

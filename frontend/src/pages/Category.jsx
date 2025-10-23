@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { ArrowLeft, RefreshCw } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { api } from '../utils/api';
 import GroupStandings from '../components/GroupStandings';
@@ -28,19 +28,6 @@ export default function Category({ onBack }) {
     }
   };
 
-  const handleGenerateGroups = async () => {
-    if (!isAuthenticated) {
-      alert('Você precisa estar logado como admin para gerar grupos!');
-      return;
-    }
-    try {
-      await api.generateGroups(category, gender);
-      loadData();
-    } catch (error) {
-      alert('Erro: ' + error.message);
-    }
-  };
-
   const handleGenerateElimination = async () => {
     if (!isAuthenticated) {
       alert('Você precisa estar logado como admin!');
@@ -65,15 +52,6 @@ export default function Category({ onBack }) {
             >
               <ArrowLeft className="w-4 h-4" /> Voltar
             </button>
-
-            {isAuthenticated && (
-              <button
-                onClick={handleGenerateGroups}
-                className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2"
-              >
-                <RefreshCw className="w-4 h-4" /> Gerar Grupos
-              </button>
-            )}
           </div>
 
           <div>
