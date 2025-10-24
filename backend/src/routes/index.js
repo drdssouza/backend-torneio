@@ -7,15 +7,15 @@ import * as groupController from '../controllers/groupController.js';
 import * as matchController from '../controllers/matchController.js';
 import * as eliminationController from '../controllers/eliminationController.js';
 import * as rankingController from '../controllers/rankingController.js';
-
+import seedRoutes from './seed-api.js';
 
 const router = express.Router();
-
-
 
 // Auth
 router.post('/login', authController.login);
 
+// Seed (para testes e população de dados)
+router.use('/seed', seedRoutes);
 
 // Tournaments
 router.get('/tournaments', tournamentController.getAllTournaments);
@@ -50,4 +50,5 @@ router.patch('/elimination/:id', eliminationController.advanceWinner);
 router.post('/ranking/calculate', rankingController.calculateRanking);
 router.get('/ranking', rankingController.getArenaRanking);
 router.get('/ranking/:clubName', rankingController.getDetailedRanking);
+
 export default router;
