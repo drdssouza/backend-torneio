@@ -98,7 +98,7 @@ export default function Ranking({ onBack }) {
             <div><span className="font-semibold">2 pts</span> - Fase de grupos</div>
             <div><span className="font-semibold">4 pts</span> - Quartas de final</div>
             <div><span className="font-semibold">8 pts</span> - Semifinal</div>
-            <div><span className="font-semibold">12 pts</span> - Finalista</div>
+            <div><span className="font-semibold">10 pts</span> - Finalista</div>
             <div><span className="font-semibold">15 pts</span> - Campeão</div>
           </div>
         </div>

@@ -71,10 +71,6 @@ export default function Login({ onLogin, onClose }) {
             Entrar
           </button>
         </form>
-
-        <p className="mt-6 text-xs text-gray-500 text-center">
-          Padrão: admin / admin123
-        </p>
       </div>
     </div>
   );

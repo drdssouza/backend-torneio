@@ -267,7 +267,7 @@ async function main() {
     grupos: 2,
     quartas: 4,
     semi: 8,
-    finalista: 12,
+    finalista: 10,
     campeao: 15
   };
 

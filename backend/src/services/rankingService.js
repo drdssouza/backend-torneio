@@ -5,7 +5,7 @@ const POINTS = {
   grupos: 2,      // Não passou da fase de grupos
   quartas: 4,     // Não passou das quartas
   semi: 8,        // Não passou da semi
-  finalista: 12,  // Perdeu a final
+  finalista: 10,  // Perdeu a final
   campeao: 15     // Ganhou a final
 };
 

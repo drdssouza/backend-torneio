@@ -8,6 +8,7 @@ import * as matchController from '../controllers/matchController.js';
 import * as eliminationController from '../controllers/eliminationController.js';
 import * as rankingController from '../controllers/rankingController.js';
 import seedRoutes from './seed-api.js';
+import seedRealRoutes from './seed-real.js';
 
 const router = express.Router();
 
@@ -16,6 +17,7 @@ router.post('/login', authController.login);
 
 // Seed (para testes e população de dados)
 router.use('/seed', seedRoutes);
+router.use('/seed', seedRealRoutes);
 
 // Tournaments
 router.get('/tournaments', tournamentController.getAllTournaments);
