@@ -142,7 +142,7 @@ export default function Home() {
 
       {/* Clubes */}
       <div className="max-w-5xl mx-auto px-6 py-12">
-        <div className="flex items-center justify-center gap-12 pb-12 border-b border-gray-100">
+        <div className="flex items-center justify-center gap-6 md:gap-12 pb-12 border-b border-gray-100">
           {[
             { name: 'Arena B2', logo: '/logos/arena-b2.png' },
             { name: 'Rilex Beach', logo: '/logos/rilex.png' },
@@ -150,18 +150,18 @@ export default function Home() {
             { name: 'Arena Beach MN', logo: '/logos/arena-mn.png' }
           ].map((club) => (
             <div key={club.name} className="text-center">
-              <div className="w-24 h-24 mx-auto mb-3 rounded-full bg-gray-50 flex items-center justify-center overflow-hidden border border-gray-100">
+              <div className="w-16 h-16 md:w-24 md:h-24 mx-auto mb-2 md:mb-3 rounded-full bg-gray-50 flex items-center justify-center overflow-hidden border border-gray-100">
                 <img 
                   src={club.logo} 
                   alt={club.name}
-                  className="w-[90px] h-[90px] object-contain"
+                  className="w-14 h-14 md:w-[90px] md:h-[90px] object-contain"
                   onError={(e) => {
                     e.target.style.display = 'none';
-                    e.target.parentElement.innerHTML = `<span class="text-2xl text-gray-400">${club.name[0]}</span>`;
+                    e.target.parentElement.innerHTML = `<span class="text-xl md:text-2xl text-gray-400">${club.name[0]}</span>`;
                   }}
                 />
               </div>
-              <p className="text-sm font-medium text-gray-700">{club.name}</p>
+              <p className="text-xs md:text-sm font-medium text-gray-700">{club.name}</p>
             </div>
           ))}
         </div>
