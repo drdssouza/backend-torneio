@@ -94,6 +94,15 @@ export const api = {
     return res.json();
   },
 
+  updateTeam: async (id, player1, player2, clubId) => {
+    const res = await fetch(`${API_URL}/teams/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ player1, player2, clubId })
+    });
+    return res.json();
+  },
+
   // ===== GRUPOS =====
   generateGroups: async (category, gender) => {
     const res = await fetch(`${API_URL}/groups/generate`, {

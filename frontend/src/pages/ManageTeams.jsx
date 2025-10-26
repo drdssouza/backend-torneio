@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2, Shuffle } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Shuffle, Edit2, X, Check } from 'lucide-react';
 import { api } from '../utils/api';
 
 export default function ManageTeams() {
@@ -11,6 +11,12 @@ export default function ManageTeams() {
   const [groups, setGroups] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [editingTeam, setEditingTeam] = useState(null);
+  const [editForm, setEditForm] = useState({
+    player1: '',
+    player2: '',
+    clubId: ''
+  });
   const [formData, setFormData] = useState({
     player1: '',
     player2: '',
@@ -59,6 +65,41 @@ export default function ManageTeams() {
     if (confirm('Excluir esta dupla?')) {
       await api.deleteTeam(id);
       loadData();
+    }
+  };
+
+  const startEditing = (team) => {
+    setEditingTeam(team.id);
+    setEditForm({
+      player1: team.player1,
+      player2: team.player2,
+      clubId: team.clubId.toString()
+    });
+  };
+
+  const cancelEditing = () => {
+    setEditingTeam(null);
+    setEditForm({ player1: '', player2: '', clubId: '' });
+  };
+
+  const handleUpdate = async (teamId) => {
+    if (!editForm.player1.trim() || !editForm.player2.trim() || !editForm.clubId) {
+      alert('Preencha todos os campos!');
+      return;
+    }
+
+    try {
+      await api.updateTeam(
+        teamId,
+        editForm.player1.trim(),
+        editForm.player2.trim(),
+        parseInt(editForm.clubId)
+      );
+      setEditingTeam(null);
+      setEditForm({ player1: '', player2: '', clubId: '' });
+      loadData();
+    } catch (error) {
+      alert('Erro ao atualizar dupla');
     }
   };
 
@@ -189,22 +230,80 @@ export default function ManageTeams() {
                 <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
                   <h3 className="font-semibold text-gray-900">{clubName}</h3>
                 </div>
-                <div className="p-6 space-y-2">
+                <div className="p-6 space-y-3">
                   {clubTeams.map((team) => (
-                    <div
-                      key={team.id}
-                      className="flex items-center justify-between py-2"
-                    >
-                      <p className="text-sm text-gray-900">
-                        {team.player1} / {team.player2}
-                      </p>
-                      {!groupsGenerated && (
-                        <button
-                          onClick={() => handleDelete(team.id)}
-                          className="text-gray-400 hover:text-red-600 transition"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                    <div key={team.id}>
+                      {editingTeam === team.id ? (
+                        // Modo de edição
+                        <div className="border border-blue-300 rounded-lg p-3 bg-blue-50">
+                          <div className="space-y-2 mb-3">
+                            <input
+                              type="text"
+                              value={editForm.player1}
+                              onChange={(e) => setEditForm({ ...editForm, player1: e.target.value })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                              placeholder="Jogador 1"
+                            />
+                            <input
+                              type="text"
+                              value={editForm.player2}
+                              onChange={(e) => setEditForm({ ...editForm, player2: e.target.value })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                              placeholder="Jogador 2"
+                            />
+                            <select
+                              value={editForm.clubId}
+                              onChange={(e) => setEditForm({ ...editForm, clubId: e.target.value })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                            >
+                              {clubs.map(club => (
+                                <option key={club.id} value={club.id}>{club.name}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleUpdate(team.id)}
+                              className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700 transition"
+                            >
+                              <Check className="w-4 h-4" /> Salvar
+                            </button>
+                            <button
+                              onClick={cancelEditing}
+                              className="flex items-center justify-center gap-2 border border-gray-300 text-gray-700 px-3 py-2 rounded text-sm hover:bg-gray-50 transition"
+                            >
+                              <X className="w-4 h-4" /> Cancelar
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        // Modo de visualização
+                        <div className="flex items-center justify-between py-2 group">
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">
+                              {team.player1} / {team.player2}
+                            </p>
+                            <p className="text-xs text-gray-500">{team.club.name}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => startEditing(team)}
+                              className="text-blue-600 hover:text-blue-700 transition opacity-0 group-hover:opacity-100"
+                              title="Editar nomes"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            {!groupsGenerated && (
+                              <button
+                                onClick={() => handleDelete(team.id)}
+                                className="text-gray-400 hover:text-red-600 transition"
+                                title="Excluir dupla"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        </div>
                       )}
                     </div>
                   ))}
@@ -259,8 +358,11 @@ export default function ManageTeams() {
             <p className="text-green-800 font-medium mb-2">
               ✓ Grupos gerados com sucesso!
             </p>
-            <p className="text-sm text-green-700">
+            <p className="text-sm text-green-700 mb-3">
               Veja os grupos e resultados na página "Ver Torneio"
+            </p>
+            <p className="text-xs text-gray-600">
+              💡 Dica: Você ainda pode editar os nomes dos jogadores clicando no ícone de lápis
             </p>
           </div>
         )}
