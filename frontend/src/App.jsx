@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Home from './pages/Home';
 import Category from './pages/Category';
@@ -8,85 +8,26 @@ import Ranking from './pages/Ranking';
 import { useStore } from './store/useStore';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState('home');
-  const [showLogin, setShowLogin] = useState(false);
-  const [manageTeamsData, setManageTeamsData] = useState({ category: null, gender: null });
-  const { isAuthenticated, setCategory, setGender, setActiveTab } = useStore();
-
-  const handleLogin = () => {
-    setShowLogin(false);
-    setCurrentPage('home');
-  };
-
-  const handleSelectCategory = (cat, gender) => {
-    setCategory(cat);
-    setGender(gender);
-    setActiveTab('grupos');
-    setCurrentPage('category');
-  };
-
-  const handleManageTeams = (cat, gender) => {
-    if (!isAuthenticated) {
-      alert('Você precisa fazer login para gerenciar duplas!');
-      setShowLogin(true);
-      return;
-    }
-    setManageTeamsData({ category: cat, gender });
-    setCurrentPage('manageTeams');
-  };
-
-  const handleManageTournaments = () => {
-    if (!isAuthenticated) {
-      alert('Você precisa fazer login!');
-      setShowLogin(true);
-      return;
-    }
-    setCurrentPage('manageTournaments');
-  };
-
-  const handleShowRanking = () => {
-    setCurrentPage('ranking');
-  };
-
-  const handleBack = () => {
-    setCurrentPage('home');
-  };
-
-  const handleShowLogin = () => {
-    setShowLogin(true);
-  };
-
-  const handleCloseLogin = () => {
-    setShowLogin(false);
-  };
-
-  if (showLogin) {
-    return <Login onLogin={handleLogin} onClose={handleCloseLogin} />;
-  }
+  const { isAuthenticated } = useStore();
 
   return (
-    <>
-      {currentPage === 'home' && (
-        <Home 
-          onSelectCategory={handleSelectCategory}
-          onManageTeams={handleManageTeams}
-          onManageTournaments={handleManageTournaments}
-          onShowLogin={handleShowLogin}
-          onShowRanking={handleShowRanking}
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/categoria/:category/:gender" element={<Category />} />
+        <Route path="/ranking" element={<Ranking />} />
+        
+        {/* Rotas protegidas (apenas admin) */}
+        <Route 
+          path="/gerenciar-duplas/:category/:gender" 
+          element={isAuthenticated ? <ManageTeams /> : <Navigate to="/login" />} 
         />
-      )}
-      {currentPage === 'category' && <Category onBack={handleBack} />}
-      {currentPage === 'manageTeams' && (
-        <ManageTeams 
-          category={manageTeamsData.category}
-          gender={manageTeamsData.gender}
-          onBack={handleBack}
+        <Route 
+          path="/gerenciar-torneios" 
+          element={isAuthenticated ? <ManageTournaments /> : <Navigate to="/login" />} 
         />
-      )}
-      {currentPage === 'manageTournaments' && (
-        <ManageTournaments onBack={handleBack} />
-      )}
-      {currentPage === 'ranking' && <Ranking onBack={handleBack} />}
-    </>
+      </Routes>
+    </BrowserRouter>
   );
 }

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Calendar, Trophy } from 'lucide-react';
 import { api } from '../utils/api';
 import { useStore } from '../store/useStore';
 
-export default function ManageTournaments({ onBack }) {
+export default function ManageTournaments() {
   const { isAuthenticated } = useStore();
+  const navigate = useNavigate();
   const [tournaments, setTournaments] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -77,7 +79,7 @@ export default function ManageTournaments({ onBack }) {
       <header className="border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-6 py-6">
           <button
-            onClick={onBack}
+            onClick={() => navigate('/')}
             className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2 mb-6"
           >
             <ArrowLeft className="w-4 h-4" /> Voltar

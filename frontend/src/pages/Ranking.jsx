@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Trophy, ChevronDown, ChevronUp, Calculator } from 'lucide-react';
 import { api } from '../utils/api';
 import { useStore } from '../store/useStore';
 
-export default function Ranking({ onBack }) {
+export default function Ranking() {
+  const navigate = useNavigate();
   const [ranking, setRanking] = useState([]);
   const [expandedClub, setExpandedClub] = useState(null);
   const [detailedData, setDetailedData] = useState({});
@@ -67,7 +69,7 @@ export default function Ranking({ onBack }) {
         <div className="max-w-5xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between mb-6">
             <button
-              onClick={onBack}
+              onClick={() => navigate('/')}
               className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" /> Voltar

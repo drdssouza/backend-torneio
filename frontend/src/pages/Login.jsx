@@ -1,13 +1,15 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { api } from '../utils/api';
 import { useStore } from '../store/useStore';
 
-export default function Login({ onLogin, onClose }) {
+export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useStore();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,7 +18,7 @@ export default function Login({ onLogin, onClose }) {
       const result = await api.login(username, password);
       if (result.success) {
         login(result.username);
-        onLogin();
+        navigate('/');
       } else {
         setError('Credenciais inválidas');
       }
@@ -29,7 +31,7 @@ export default function Login({ onLogin, onClose }) {
     <div className="min-h-screen bg-white flex items-center justify-center p-6">
       <div className="w-full max-w-sm">
         <button
-          onClick={onClose}
+          onClick={() => navigate('/')}
           className="mb-8 text-gray-400 hover:text-gray-600"
         >
           <X className="w-5 h-5" />

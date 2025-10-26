@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Trash2, Shuffle } from 'lucide-react';
 import { api } from '../utils/api';
 
-export default function ManageTeams({ category, gender, onBack }) {
+export default function ManageTeams() {
+  const { category, gender } = useParams();
+  const navigate = useNavigate();
   const [teams, setTeams] = useState([]);
   const [clubs, setClubs] = useState([]);
   const [groups, setGroups] = useState([]);
@@ -94,7 +97,7 @@ export default function ManageTeams({ category, gender, onBack }) {
       <header className="border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-6 py-6">
           <button
-            onClick={onBack}
+            onClick={() => navigate('/')}
             className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2 mb-6"
           >
             <ArrowLeft className="w-4 h-4" /> Voltar

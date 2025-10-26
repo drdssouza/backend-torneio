@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { api } from '../utils/api';
@@ -6,10 +7,14 @@ import GroupStandings from '../components/GroupStandings';
 import MatchList from '../components/MatchList';
 import EliminationBracket from '../components/EliminationBracket';
 
-export default function Category({ onBack }) {
-  const { category, gender, activeTab, isAuthenticated, setActiveTab, setGroups, setMatches, setElimination } = useStore();
+export default function Category() {
+  const { category, gender } = useParams();
+  const navigate = useNavigate();
+  const { activeTab, isAuthenticated, setActiveTab, setGroups, setMatches, setElimination, setCategory, setGender } = useStore();
 
   useEffect(() => {
+    setCategory(category);
+    setGender(gender);
     loadData();
   }, [category, gender]);
 
@@ -47,7 +52,7 @@ export default function Category({ onBack }) {
         <div className="max-w-5xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between mb-6">
             <button
-              onClick={onBack}
+              onClick={() => navigate('/')}
               className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" /> Voltar

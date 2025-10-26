@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { LogOut, LogIn, Award, Calendar, Settings } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { api } from '../utils/api';
 
-export default function Home({ onSelectCategory, onManageTeams, onShowLogin, onShowRanking, onManageTournaments }) {
+export default function Home() {
   const { isAuthenticated, logout } = useStore();
+  const navigate = useNavigate();
   const [activeTournament, setActiveTournament] = useState(null);
   const [allTournaments, setAllTournaments] = useState([]);
   const [showTournamentSelector, setShowTournamentSelector] = useState(false);
@@ -40,6 +42,24 @@ export default function Home({ onSelectCategory, onManageTeams, onShowLogin, onS
     });
   };
 
+  const handleManageTeams = (cat, gender) => {
+    if (!isAuthenticated) {
+      alert('Você precisa fazer login para gerenciar duplas!');
+      navigate('/login');
+      return;
+    }
+    navigate(`/gerenciar-duplas/${cat}/${gender}`);
+  };
+
+  const handleManageTournaments = () => {
+    if (!isAuthenticated) {
+      alert('Você precisa fazer login!');
+      navigate('/login');
+      return;
+    }
+    navigate('/gerenciar-torneios');
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -54,7 +74,7 @@ export default function Home({ onSelectCategory, onManageTeams, onShowLogin, onS
             <div className="flex items-center gap-3">
               {isAuthenticated && (
                 <button
-                  onClick={onManageTournaments}
+                  onClick={handleManageTournaments}
                   className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2"
                 >
                   <Settings className="w-4 h-4" /> Gerenciar Edições
@@ -69,17 +89,17 @@ export default function Home({ onSelectCategory, onManageTeams, onShowLogin, onS
                   <LogOut className="w-4 h-4" /> Sair
                 </button>
               ) : (
-                <button
-                  onClick={onShowLogin}
+                <Link
+                  to="/login"
                   className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2"
                 >
                   <LogIn className="w-4 h-4" /> Admin
-                </button>
+                </Link>
               )}
             </div>
           </div>
 
-          {/* Seletor de Ediçã */}
+          {/* Seletor de Edição */}
           {activeTournament && (
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
               <div className="flex items-center justify-between">
@@ -148,13 +168,13 @@ export default function Home({ onSelectCategory, onManageTeams, onShowLogin, onS
 
         {/* Botão Ranking */}
         <div className="py-8 text-center">
-          <button
-            onClick={onShowRanking}
+          <Link
+            to="/ranking"
             className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-8 py-4 rounded-lg font-semibold hover:shadow-lg transition transform hover:scale-105"
           >
             <Award className="w-5 h-5" />
             Classificação Geral das Arenas
-          </button>
+          </Link>
         </div>
 
         {/* Categorias */}
@@ -169,16 +189,16 @@ export default function Home({ onSelectCategory, onManageTeams, onShowLogin, onS
                     <p className="text-sm font-medium text-gray-500 mb-4">{gender}</p>
                     
                     <div className="space-y-2">
-                      <button
-                        onClick={() => onSelectCategory(cat, gender)}
-                        className="w-full bg-gray-900 text-white px-4 py-3 rounded text-sm font-medium hover:bg-gray-800 transition"
+                      <Link
+                        to={`/categoria/${cat}/${gender}`}
+                        className="block w-full bg-gray-900 text-white px-4 py-3 rounded text-sm font-medium hover:bg-gray-800 transition text-center"
                       >
                         Ver Torneio
-                      </button>
+                      </Link>
                       
                       {isAuthenticated && (
                         <button
-                          onClick={() => onManageTeams(cat, gender)}
+                          onClick={() => handleManageTeams(cat, gender)}
                           className="w-full border border-gray-300 text-gray-700 px-4 py-3 rounded text-sm font-medium hover:bg-gray-50 transition"
                         >
                           Gerenciar Duplas
