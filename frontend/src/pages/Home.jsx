@@ -79,7 +79,7 @@ export default function Home({ onSelectCategory, onManageTeams, onShowLogin, onS
             </div>
           </div>
 
-          {/* Seletor de Edição */}
+          {/* Seletor de Ediçã */}
           {activeTournament && (
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
               <div className="flex items-center justify-between">
